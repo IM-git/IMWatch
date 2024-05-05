@@ -1,11 +1,18 @@
 import cv2
+import win32api
+import time
 
 
-def face_capture():
+def face_recognition():
+
     cascade_path = './filters/haarcascade_frontalface_default.xml'
 
     clf = cv2.CascadeClassifier(cascade_path)
     camera = cv2.VideoCapture(0)
+
+    # Обновление координат каждую секунду
+    update_interval = 1
+    last_update_time = time.time()
 
     while True:
         _, frame = camera.read()
@@ -19,8 +26,23 @@ def face_capture():
             flags=cv2.CASCADE_SCALE_IMAGE
         )
 
+        current_time = time.time()
+
         for (x, y, width, height) in faces:
             cv2.rectangle(frame, (x, y), (x + width, y + height), (255, 255, 0), 2)
+
+            # Получение размеров экрана
+            screen_width = win32api.GetSystemMetrics(0)
+            screen_height = win32api.GetSystemMetrics(1)
+
+            # Преобразование координат лица относительно экрана
+            x_screen = int((x + (width / 2)) * screen_width / frame.shape[1])
+            y_screen = int((y + (height / 2)) * screen_height / frame.shape[0])
+
+            # Обновление координат только если прошло достаточно времени
+            if current_time - last_update_time >= update_interval:
+                last_update_time = current_time
+                print("Face position (x, y) relative to screen:", x_screen, y_screen)
 
         cv2.imshow('Faces', frame)
 
@@ -31,9 +53,5 @@ def face_capture():
     cv2.destroyAllWindows()
 
 
-def main():
-    face_capture()
-
-
 if __name__ == '__main__':
-    main()
+    face_recognition()
