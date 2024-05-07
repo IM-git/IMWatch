@@ -1,6 +1,7 @@
 import cv2
 import win32api
 import time
+import pyautogui
 
 
 def face_recognition():
@@ -10,7 +11,7 @@ def face_recognition():
     clf = cv2.CascadeClassifier(cascade_path)
     camera = cv2.VideoCapture(0)
 
-    # Обновление координат каждую секунду
+    # Coordinates update every 1 second
     update_interval = 1
     last_update_time = time.time()
 
@@ -31,18 +32,21 @@ def face_recognition():
         for (x, y, width, height) in faces:
             cv2.rectangle(frame, (x, y), (x + width, y + height), (255, 255, 0), 2)
 
-            # Получение размеров экрана
+            # Getting screen size
             screen_width = win32api.GetSystemMetrics(0)
             screen_height = win32api.GetSystemMetrics(1)
 
-            # Преобразование координат лица относительно экрана
+            # Converting face coordinates relative to the screen
             x_screen = int((x + (width / 2)) * screen_width / frame.shape[1])
             y_screen = int((y + (height / 2)) * screen_height / frame.shape[0])
 
-            # Обновление координат только если прошло достаточно времени
+            # Updating coordinates only if enough time has passed
             if current_time - last_update_time >= update_interval:
                 last_update_time = current_time
                 print("Face position (x, y) relative to screen:", x_screen, y_screen)
+
+                # Moving the mouse according to the coordinates of the face
+                pyautogui.moveTo((screen_width - x_screen), y_screen, duration=0.25)
 
         cv2.imshow('Faces', frame)
 
