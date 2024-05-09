@@ -1,9 +1,7 @@
 import time
 
-import pygame
-
 from face_recognition import FaceRecognition
-from ball import Ball
+from pc_action import PcActions
 
 cascade_path = './filters/haarcascade_frontalface_default.xml'
 
@@ -21,12 +19,7 @@ screen_color = (255, 255, 255)
 def run():
 
     last_update_time = time.time()
-
-    pygame.init()
-    screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("Head Tracking Ball")
-
-    ball = Ball(ball_radius, ball_color)
+    ball = PcActions()
     face_recognition = FaceRecognition(cascade_path, screen_width, screen_height)
 
     while True:
@@ -43,14 +36,7 @@ def run():
             last_update_time = current_time
             ball.update_position(screen_width - x_screen, y_screen)
 
-        screen.fill(screen_color)
-        ball.draw(screen)
-        pygame.display.update()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
+        ball.moving_cursor()
 
 
 if __name__ == '__main__':
