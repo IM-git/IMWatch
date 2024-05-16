@@ -135,3 +135,4 @@ debug.json
 allureress/
 credential.py
 test_video.mp4
+*test*.py
