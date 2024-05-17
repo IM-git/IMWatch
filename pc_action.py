@@ -8,4 +8,9 @@ class PyAutoGUIController:
 
     @staticmethod
     def move_mouse(x, y, screen_width):
-        pyautogui.moveTo((screen_width - x), y, duration=0.25)
+        pyautogui.moveTo((screen_width - x), y, duration=0.001)
+
+    @staticmethod
+    def click():
+        pyautogui.click()
+        # pyautogui.doubleClick()

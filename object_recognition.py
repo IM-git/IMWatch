@@ -1,5 +1,7 @@
 import cv2
+import math
 import mediapipe as mp
+from win32api import GetSystemMetrics
 
 
 class ObjectRecognition:
@@ -31,25 +33,35 @@ class ObjectRecognition:
 
     def find_position(self, img, hand_no=0, draw=True):
 
-        lm_list = []
+        self.lm_list = []
         if self.results.multi_hand_landmarks:
             my_hand = self.results.multi_hand_landmarks[hand_no]
 
             for id, lm in enumerate(my_hand.landmark):
                 h, w, c = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
-                lm_list.append([id, cx, cy])
+                self.lm_list.append([id, cx, cy])
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)
 
-        return lm_list
+        return self.lm_list
+
+    def find_distance(self, p1, p2, img, draw=True):
+        x1, y1 = self.lm_list[p1][1], self.lm_list[p1][2]
+        x2, y2 = self.lm_list[p2][1], self.lm_list[p2][2]
+        cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+
+        if draw:
+            cv2.circle(img, (x1, y1), 15, (255, 0, 255), cv2.FILLED)
+            cv2.circle(img, (x2, y2), 15, (255, 0, 255), cv2.FILLED)
+            cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
+            cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
+
+        length = math.hypot(x2 - x1, y2 - y1)
+        return length, img, [x1, y1, x2, y2, cx, cy]
 
 
 if __name__ == '__main__':
-
-    from win32api import GetSystemMetrics
-    from pc_action import PyAutoGUIController
-    gui_controller = PyAutoGUIController()
 
     cap = cv2.VideoCapture(0)  # Initialize webcam capture
     detector = ObjectRecognition()  # Initialize hand detector object
@@ -65,7 +77,7 @@ if __name__ == '__main__':
         find_position = detector.find_position(img)
 
         if len(find_position) != 0:
-            print(f"find_position: {find_position[4]}")
+            # print(f"find_position: {find_position[4]}")
 
             finger_tip = find_position[4]
 
@@ -74,6 +86,4 @@ if __name__ == '__main__':
 
             x_screen = screen_width - (finger_tip[1] * screen_width / img.shape[1])
             y_screen = finger_tip[2] * screen_height / img.shape[0]
-
-            gui_controller.move_mouse(x_screen, y_screen, screen_width)
 
