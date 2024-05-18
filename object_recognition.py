@@ -60,8 +60,23 @@ class ObjectRecognition:
         length = math.hypot(x2 - x1, y2 - y1)
         return length, img, [x1, y1, x2, y2, cx, cy]
 
+    def get_differences(self, new_position):
+
+        x_new_position = new_position[1]
+        y_new_position = new_position[2]
+
+        # x_differences =
+        # y_differences =
+        #
+        # x_old_position =
+        # y_old_position =
+
+
+
 
 if __name__ == '__main__':
+
+    from pc_action import PyAutoGUIController
 
     cap = cv2.VideoCapture(0)  # Initialize webcam capture
     detector = ObjectRecognition()  # Initialize hand detector object
@@ -77,7 +92,8 @@ if __name__ == '__main__':
         find_position = detector.find_position(img)
 
         if len(find_position) != 0:
-            # print(f"find_position: {find_position[4]}")
+            print(f"find_position: {find_position[4]}")
+            print(f"get_cursor_position: {PyAutoGUIController.get_cursor_position()}")
 
             finger_tip = find_position[4]
 
