@@ -57,19 +57,19 @@ class HandControlsCursor:
 
                         if self.old_x_screen < x_screen:
                             # self.x_screen += 30
-                            self.x_screen += abs(self.old_x_screen - x_screen)
+                            self.x_screen += abs(self.old_x_screen - x_screen)*2
                         if self.old_x_screen > x_screen:
                             # self.x_screen -= 30
-                            self.x_screen -= abs(self.old_x_screen - x_screen)
+                            self.x_screen -= abs(self.old_x_screen - x_screen)*2
 
                     if abs(self.old_y_screen - y_screen) > 10:
 
                         if self.old_y_screen < y_screen:
                             # self.y_screen += 30
-                            self.y_screen += abs(self.old_y_screen - y_screen)
+                            self.y_screen += abs(self.old_y_screen - y_screen)*2
                         if self.old_y_screen > y_screen:
                             # self.y_screen -= 30
-                            self.y_screen -= abs(self.old_y_screen - y_screen)
+                            self.y_screen -= abs(self.old_y_screen - y_screen)*2
 
                     if self.x_screen > 1920:
                         self.x_screen = 1919
