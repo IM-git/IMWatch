@@ -16,6 +16,9 @@ ball_radius = 20
 ball_color = (255, 255, 0)  # Жёлтый цвет шара
 screen_color = (255, 255, 255)  # Белый цвет фона
 
+# Ограничение FPS
+FPS = 30
+
 
 def run():
     """
@@ -29,6 +32,9 @@ def run():
     pygame.init()
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("Head Tracking Ball")
+
+    # Создание объекта Clock для управления FPS
+    clock = pygame.time.Clock()
 
     ball = Ball(ball_radius, ball_color)
     face_recognition = FaceRecognition(cascade_path, screen_width, screen_height)
@@ -58,6 +64,9 @@ def run():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     return
+
+            # Ограничение количества кадров в секунду
+            clock.tick(FPS)
 
     finally:
         # Обязательно освобождаем ресурсы камеры перед выходом
