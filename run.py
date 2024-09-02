@@ -1,6 +1,7 @@
-import time
-
+import cv2
 import pygame
+
+import time
 
 from face_recognition import FaceRecognition
 from ball import Ball
@@ -41,6 +42,10 @@ def run():
 
         if current_time - last_update_time >= update_interval:
             last_update_time = current_time
+
+            if x_screen is not None and y_screen is not None:
+                ball.update_position(screen_width - x_screen, y_screen)
+
             ball.update_position(screen_width - x_screen, y_screen)
 
         screen.fill(screen_color)
@@ -49,8 +54,12 @@ def run():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                face_recognition.release()
                 pygame.quit()
                 return
+
+        if cv2.waitKey(1) == ord('q'):
+            break
 
 
 if __name__ == '__main__':

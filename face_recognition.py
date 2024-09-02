@@ -11,7 +11,12 @@ class FaceRecognition:
         self.camera = cv2.VideoCapture(0)
         self.frame = None
 
+        # Проверка, удалось ли открыть камеру
+        if not self.camera.isOpened():
+            raise Exception("Camera could not be opened.")
+
     def detect_faces(self):
+
         _, frame = self.camera.read()
         self.frame = frame
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -32,3 +37,7 @@ class FaceRecognition:
             y_screen = int((y + (height / 2)) * self.screen_height / self.frame.shape[0])
 
         return x_screen, y_screen
+
+    def release(self):
+        """ Освобождает ресурсы камеры. """
+        self.camera.release()
