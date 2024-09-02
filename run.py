@@ -19,6 +19,10 @@ screen_color = (255, 255, 255)  # Белый цвет фона
 # Ограничение FPS
 FPS = 30
 
+oval_width = 200  # Увеличен в 2 раза
+oval_height = 80  # Увеличен в 2 раза
+oval_color = (128, 128, 128)  # Gray
+
 
 def run():
     """
@@ -36,7 +40,7 @@ def run():
     # Создание объекта Clock для управления FPS
     clock = pygame.time.Clock()
 
-    ball = Ball(ball_radius, ball_color)
+    ball = Ball()
     face_recognition = FaceRecognition(cascade_path, screen_width, screen_height)
 
     try:
@@ -56,7 +60,12 @@ def run():
 
             # Очистка экрана и рисование шара
             screen.fill(screen_color)
-            ball.draw(screen)
+
+            oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
+
+            ball.draw_ellipse(screen, oval_color, oval_rect)
+
+            ball.draw_circle(screen=screen, radius=ball_radius, color=ball_color)
             pygame.display.update()
 
             # Обработка событий Pygame
