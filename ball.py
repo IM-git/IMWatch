@@ -3,16 +3,24 @@ import pygame
 
 class Ball:
 
-    def __init__(self):
-        self.x = 0
-        self.y = 0
+    @staticmethod
+    def draw_circle(screen, radius, color, x, y):
+        """
+        Рисует круг (шар) на экране.
+        :param screen: поверхность Pygame для рисования
+        :param radius: радиус шара
+        :param color: цвет шара
+        :param x: координата x шара
+        :param y: координата y шара
+        """
+        pygame.draw.circle(screen, color, (x, y), radius)
 
-    def update_position(self, x, y) -> None:
-        self.x = x
-        self.y = y
-
-    def draw_circle(self, screen, radius, color) -> None:
-        pygame.draw.circle(screen, color, (self.x, self.y), radius)
-
-    def draw_ellipse(self, screen, color, rect) -> None:
+    @staticmethod
+    def draw_ellipse(screen, color, rect):
+        """
+        Рисует эллипс на экране.
+        :param screen: поверхность Pygame для рисования
+        :param color: цвет эллипса
+        :param rect: координаты и размеры эллипса
+        """
         pygame.draw.ellipse(screen, color, rect)

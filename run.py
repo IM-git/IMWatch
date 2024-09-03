@@ -19,14 +19,13 @@ yellow_color = (255, 255, 0)  # Жёлтый цвет шара
 blue_color = (0, 0, 255)  # Синий цвет шара
 black_color = (0, 0, 0)  # Черный цвет шара
 white_color = (255, 255, 255)  # Белый цвет фона
-gray_color = (128, 128, 128)  # Gray
+gray_color = (128, 128, 128)  # Серый цвет овала
 
 # Ограничение FPS
 FPS = 30
 
 oval_width = 400  # Увеличен в 2 раза
 oval_height = 160  # Увеличен в 2 раза
-
 
 def run():
     """
@@ -47,6 +46,11 @@ def run():
     ball = Ball()
     face_recognition = FaceRecognition(cascade_path, screen_width, screen_height)
 
+    # Определение границ овала
+    oval_center_x = screen_width // 2
+    oval_center_y = screen_height // 2
+    oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
+
     try:
         while True:
             # Захват и обработка лиц
@@ -60,17 +64,43 @@ def run():
             if x_screen is not None and y_screen is not None:
                 if current_time - last_update_time >= update_interval:
                     last_update_time = current_time
-                    ball.update_position(screen_width - x_screen, y_screen)
+
+                    # Ограничение движения шаров в пределах овала
+                    x_centered = screen_width - x_screen
+                    y_centered = y_screen
+
+                    # Ограничение для синего шара (большего радиуса)
+                    max_x_2 = oval_center_x + (oval_width // 2 - ball_radius_2)
+                    min_x_2 = oval_center_x - (oval_width // 2 - ball_radius_2)
+                    max_y_2 = oval_center_y + (oval_height // 2 - ball_radius_2)
+                    min_y_2 = oval_center_y - (oval_height // 2 - ball_radius_2)
+
+                    # Ограничение для черного шара (меньшего радиуса)
+                    max_x = oval_center_x + (oval_width // 2 - ball_radius)
+                    min_x = oval_center_x - (oval_width // 2 - ball_radius)
+                    max_y = oval_center_y + (oval_height // 2 - ball_radius)
+                    min_y = oval_center_y - (oval_height // 2 - ball_radius)
+
+                    # Ограничение позиции для черного шара
+                    x_black = min(max(x_centered, min_x), max_x)
+                    y_black = min(max(y_centered, min_y), max_y)
+
+                    # Ограничение позиции для синего шара
+                    x_blue = min(max(x_centered, min_x_2), max_x_2)
+                    y_blue = min(max(y_centered, min_y_2), max_y_2)
 
             # Очистка экрана и рисование шара
             screen.fill(white_color)
 
-            oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
+            # Рисуем серый овал
+            pygame.draw.ellipse(screen, gray_color, oval_rect)
 
-            ball.draw_ellipse(screen, gray_color, oval_rect)
+            # Рисуем синий шар
+            ball.draw_circle(screen=screen, radius=ball_radius_2, color=blue_color, x=x_blue, y=y_blue)
 
-            ball.draw_circle(screen=screen, radius=ball_radius_2, color=blue_color)
-            ball.draw_circle(screen=screen, radius=ball_radius, color=black_color)
+            # Рисуем черный шар
+            ball.draw_circle(screen=screen, radius=ball_radius, color=black_color, x=x_black, y=y_black)
+
             pygame.display.update()
 
             # Обработка событий Pygame
