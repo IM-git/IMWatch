@@ -12,16 +12,20 @@ screen_height = 600
 update_interval = 0.1
 
 # Параметры шара и цвета экрана
-ball_radius = 20
-ball_color = (255, 255, 0)  # Жёлтый цвет шара
-screen_color = (255, 255, 255)  # Белый цвет фона
+ball_radius = 30
+ball_radius_2 = 50
+
+yellow_color = (255, 255, 0)  # Жёлтый цвет шара
+blue_color = (0, 0, 255)  # Синий цвет шара
+black_color = (0, 0, 0)  # Черный цвет шара
+white_color = (255, 255, 255)  # Белый цвет фона
+gray_color = (128, 128, 128)  # Gray
 
 # Ограничение FPS
 FPS = 30
 
-oval_width = 200  # Увеличен в 2 раза
-oval_height = 80  # Увеличен в 2 раза
-oval_color = (128, 128, 128)  # Gray
+oval_width = 400  # Увеличен в 2 раза
+oval_height = 160  # Увеличен в 2 раза
 
 
 def run():
@@ -59,13 +63,14 @@ def run():
                     ball.update_position(screen_width - x_screen, y_screen)
 
             # Очистка экрана и рисование шара
-            screen.fill(screen_color)
+            screen.fill(white_color)
 
             oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
 
-            ball.draw_ellipse(screen, oval_color, oval_rect)
+            ball.draw_ellipse(screen, gray_color, oval_rect)
 
-            ball.draw_circle(screen=screen, radius=ball_radius, color=ball_color)
+            ball.draw_circle(screen=screen, radius=ball_radius_2, color=blue_color)
+            ball.draw_circle(screen=screen, radius=ball_radius, color=black_color)
             pygame.display.update()
 
             # Обработка событий Pygame
