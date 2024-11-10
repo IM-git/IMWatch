@@ -15,6 +15,11 @@ update_interval = 0.1
 ball_radius = 30
 ball_radius_2 = 50
 
+oval_width = 400  # Увеличен в 2 раза
+oval_height = 210  # Увеличен в 2 раза
+
+yellow_ball_radius = oval_height // 2  # Радиус желтого шара
+
 yellow_color = (255, 255, 0)  # Жёлтый цвет шара
 blue_color = (0, 0, 255)  # Синий цвет шара
 black_color = (0, 0, 0)  # Черный цвет шара
@@ -22,12 +27,7 @@ white_color = (255, 255, 255)  # Белый цвет фона
 gray_color = (128, 128, 128)  # Серый цвет овала
 
 # Ограничение FPS
-FPS = 30
-
-oval_width = 400  # Увеличен в 2 раза
-oval_height = 160  # Увеличен в 2 раза
-
-yellow_ball_radius = oval_height // 2  # Радиус желтого шара
+FPS = 60
 
 
 def run():
@@ -107,7 +107,7 @@ def run():
             screen.fill(white_color)  # Заполнение фона белым цветом
 
             # Рисуем серый овал
-            pygame.draw.ellipse(screen, gray_color, oval_rect)
+            ball.draw_ellipse(screen, gray_color, oval_rect)
 
             ball.draw_circle(screen=screen, radius=yellow_ball_radius, color=yellow_color, x=x_yellow, y=y_yellow)
 
