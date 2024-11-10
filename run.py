@@ -29,12 +29,13 @@ oval_height = 160  # Увеличен в 2 раза
 
 def run():
     """
-    Основная функция запуска приложения для отслеживания головы с использованием распознавания лиц.
+        Основная функция запуска приложения для отслеживания головы с использованием распознавания лиц.
 
-    Инициализирует экран, создает объекты для распознавания лиц и шара,
-    запускает главный цикл, который обрабатывает видео с камеры,
-    распознает лица и обновляет положение шара на экране в зависимости от положения лица.
+        Инициализирует экран, создает объекты для распознавания лиц и шара,
+        запускает главный цикл, который обрабатывает видео с камеры,
+        распознает лица и обновляет положение шара на экране в зависимости от положения лица.
     """
+
     last_update_time = time.time()
     pygame.init()
     screen = pygame.display.set_mode((screen_width, screen_height))
@@ -52,7 +53,11 @@ def run():
     oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
 
     try:
+        x_blue, y_blue = oval_center_x, oval_center_y
+        x_black, y_black = oval_center_x, oval_center_y
+
         while True:
+
             # Захват и обработка лиц
             faces = face_recognition.detect_faces()
             _screen_coordinates = face_recognition.process_faces(faces)
@@ -61,7 +66,8 @@ def run():
             current_time = time.time()
 
             # Обновление положения шара только при наличии обнаруженных лиц
-            if x_screen is not None and y_screen is not None:
+            if x_screen and y_screen:
+
                 if current_time - last_update_time >= update_interval:
                     last_update_time = current_time
 
