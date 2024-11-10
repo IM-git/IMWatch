@@ -66,7 +66,7 @@ def run():
             current_time = time.time()
 
             # Обновление положения шара только при наличии обнаруженных лиц
-            if x_screen and y_screen:
+            if x_screen is not None and y_screen is not None:
 
                 if current_time - last_update_time >= update_interval:
                     last_update_time = current_time  # Обновление времени последнего перемещения
