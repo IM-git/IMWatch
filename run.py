@@ -27,6 +27,9 @@ FPS = 30
 oval_width = 400  # Увеличен в 2 раза
 oval_height = 160  # Увеличен в 2 раза
 
+yellow_ball_radius = oval_height // 2  # Радиус желтого шара
+
+
 def run():
     """
         Основная функция запуска приложения для отслеживания головы с использованием распознавания лиц.
@@ -50,10 +53,13 @@ def run():
     # Определение границ овала
     oval_center_x = screen_width // 2  # X-координата центра овала
     oval_center_y = screen_height // 2  # Y-координата центра овала
+
     # Прямоугольник, задающий овал
     oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
 
     try:
+
+        x_yellow, y_yellow = oval_center_x, oval_center_y  # Начальная позиция желтого шара
         x_blue, y_blue = oval_center_x, oval_center_y  # Начальная позиция синего шара
         x_black, y_black = oval_center_x, oval_center_y  # Начальная позиция черного шара
 
@@ -75,25 +81,19 @@ def run():
                     x_centered = screen_width - x_screen  # Инвертированная X-координата
                     y_centered = y_screen  # Центрированная Y-координата
 
-                    # Ограничение для синего шара (большего радиуса)
-                    max_x_2 = oval_center_x + (oval_width // 2 - ball_radius_2)  # Максимальная X-координата для синего шара
-                    min_x_2 = oval_center_x - (oval_width // 2 - ball_radius_2)  # Минимальная X-координата для синего шара
-                    max_y_2 = oval_center_y + (oval_height // 2 - ball_radius_2)  # Максимальная Y-координата для синего шара
-                    min_y_2 = oval_center_y - (oval_height // 2 - ball_radius_2)  # Минимальная Y-координата для синего шара
+                    # Смещение синего шара относительно желтого
+                    x_shift_blue = x_centered - x_yellow
+                    y_shift_blue = y_centered - y_yellow
 
-                    # Ограничение для черного шара (меньшего радиуса)
-                    max_x = oval_center_x + (oval_width // 2 - ball_radius)  # Максимальная X-координата для черного шара
-                    min_x = oval_center_x - (oval_width // 2 - ball_radius)  # Минимальная X-координата для черного шара
-                    max_y = oval_center_y + (oval_height // 2 - ball_radius)  # Максимальная Y-координата для черного шара
-                    min_y = oval_center_y - (oval_height // 2 - ball_radius)  # Минимальная Y-координата для черного шара
+                    # Ограничение для синего шара (перемещается относительно желтого шара)
+                    max_x_2 = x_yellow + (yellow_ball_radius - ball_radius_2)
+                    min_x_2 = x_yellow - (yellow_ball_radius - ball_radius_2)
+                    max_y_2 = y_yellow + (yellow_ball_radius - ball_radius_2)
+                    min_y_2 = y_yellow - (yellow_ball_radius - ball_radius_2)
 
                     # Ограничение позиции для синего шара
                     x_blue = min(max(x_centered, min_x_2), max_x_2)
                     y_blue = min(max(y_centered, min_y_2), max_y_2)
-
-                    # Ограничение движения синего шара в пределах овала
-                    x_shift_blue = x_centered - oval_center_x  # Смещение синего шара относительно центра овала
-                    y_shift_blue = y_centered - oval_center_y  # Смещение синего шара относительно центра овала
 
                     # Черный шар будет смещаться в 5.5 раза меньше, чем синий шар
                     x_shift_black = x_shift_blue / 5.5  # Смещение черного шара
@@ -108,6 +108,8 @@ def run():
 
             # Рисуем серый овал
             pygame.draw.ellipse(screen, gray_color, oval_rect)
+
+            ball.draw_circle(screen=screen, radius=yellow_ball_radius, color=yellow_color, x=x_yellow, y=y_yellow)
 
             # Рисуем синий шар
             ball.draw_circle(screen=screen, radius=ball_radius_2, color=blue_color, x=x_blue, y=y_blue)
