@@ -87,13 +87,21 @@ def run():
                     max_y = oval_center_y + (oval_height // 2 - ball_radius)  # Максимальная Y-координата для черного шара
                     min_y = oval_center_y - (oval_height // 2 - ball_radius)  # Минимальная Y-координата для черного шара
 
-                    # Ограничение позиции для черного шара
-                    x_black = min(max(x_centered, min_x), max_x)
-                    y_black = min(max(y_centered, min_y), max_y)
-
                     # Ограничение позиции для синего шара
                     x_blue = min(max(x_centered, min_x_2), max_x_2)
                     y_blue = min(max(y_centered, min_y_2), max_y_2)
+
+                    # Ограничение движения синего шара в пределах овала
+                    x_shift_blue = x_centered - oval_center_x  # Смещение синего шара относительно центра овала
+                    y_shift_blue = y_centered - oval_center_y  # Смещение синего шара относительно центра овала
+
+                    # Черный шар будет смещаться в 5.5 раза меньше, чем синий шар
+                    x_shift_black = x_shift_blue / 5.5  # Смещение черного шара
+                    y_shift_black = y_shift_blue / 5.5  # Смещение черного шара
+
+                    # Вычисляем позицию черного шара относительно центра синего шара
+                    x_black = x_blue + x_shift_black  # Позиция черного шара по оси X
+                    y_black = y_blue + y_shift_black  # Позиция черного шара по оси Y
 
             # Очистка экрана и рисование шара
             screen.fill(white_color)  # Заполнение фона белым цветом
