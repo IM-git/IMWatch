@@ -36,10 +36,10 @@ def run():
         распознает лица и обновляет положение шара на экране в зависимости от положения лица.
     """
 
-    last_update_time = time.time()
+    last_update_time = time.time()  # Время последнего обновления положения шара
     pygame.init()
-    screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("Head Tracking Ball")
+    screen = pygame.display.set_mode((screen_width, screen_height))  # Экран для отображения графики
+    pygame.display.set_caption("Head Tracking Ball")  # Заголовок окна приложения
 
     # Создание объекта Clock для управления FPS
     clock = pygame.time.Clock()
@@ -48,19 +48,19 @@ def run():
     face_recognition = FaceRecognition(cascade_path, screen_width, screen_height)
 
     # Определение границ овала
-    oval_center_x = screen_width // 2
-    oval_center_y = screen_height // 2
+    oval_center_x = screen_width // 2  # X-координата центра овала
+    oval_center_y = screen_height // 2  # Y-координата центра овала
+    # Прямоугольник, задающий овал
     oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
 
     try:
-        x_blue, y_blue = oval_center_x, oval_center_y
-        x_black, y_black = oval_center_x, oval_center_y
+        x_blue, y_blue = oval_center_x, oval_center_y  # Начальная позиция синего шара
+        x_black, y_black = oval_center_x, oval_center_y  # Начальная позиция черного шара
 
         while True:
-
             # Захват и обработка лиц
-            faces = face_recognition.detect_faces()
-            _screen_coordinates = face_recognition.process_faces(faces)
+            faces = face_recognition.detect_faces()  # Список обнаруженных лиц
+            _screen_coordinates = face_recognition.process_faces(faces)  # Координаты центра первого обнаруженного лица
             x_screen, y_screen = _screen_coordinates
 
             current_time = time.time()
@@ -69,23 +69,23 @@ def run():
             if x_screen and y_screen:
 
                 if current_time - last_update_time >= update_interval:
-                    last_update_time = current_time
+                    last_update_time = current_time  # Обновление времени последнего перемещения
 
                     # Ограничение движения шаров в пределах овала
-                    x_centered = screen_width - x_screen
-                    y_centered = y_screen
+                    x_centered = screen_width - x_screen  # Инвертированная X-координата
+                    y_centered = y_screen  # Центрированная Y-координата
 
                     # Ограничение для синего шара (большего радиуса)
-                    max_x_2 = oval_center_x + (oval_width // 2 - ball_radius_2)
-                    min_x_2 = oval_center_x - (oval_width // 2 - ball_radius_2)
-                    max_y_2 = oval_center_y + (oval_height // 2 - ball_radius_2)
-                    min_y_2 = oval_center_y - (oval_height // 2 - ball_radius_2)
+                    max_x_2 = oval_center_x + (oval_width // 2 - ball_radius_2)  # Максимальная X-координата для синего шара
+                    min_x_2 = oval_center_x - (oval_width // 2 - ball_radius_2)  # Минимальная X-координата для синего шара
+                    max_y_2 = oval_center_y + (oval_height // 2 - ball_radius_2)  # Максимальная Y-координата для синего шара
+                    min_y_2 = oval_center_y - (oval_height // 2 - ball_radius_2)  # Минимальная Y-координата для синего шара
 
                     # Ограничение для черного шара (меньшего радиуса)
-                    max_x = oval_center_x + (oval_width // 2 - ball_radius)
-                    min_x = oval_center_x - (oval_width // 2 - ball_radius)
-                    max_y = oval_center_y + (oval_height // 2 - ball_radius)
-                    min_y = oval_center_y - (oval_height // 2 - ball_radius)
+                    max_x = oval_center_x + (oval_width // 2 - ball_radius)  # Максимальная X-координата для черного шара
+                    min_x = oval_center_x - (oval_width // 2 - ball_radius)  # Минимальная X-координата для черного шара
+                    max_y = oval_center_y + (oval_height // 2 - ball_radius)  # Максимальная Y-координата для черного шара
+                    min_y = oval_center_y - (oval_height // 2 - ball_radius)  # Минимальная Y-координата для черного шара
 
                     # Ограничение позиции для черного шара
                     x_black = min(max(x_centered, min_x), max_x)
@@ -96,7 +96,7 @@ def run():
                     y_blue = min(max(y_centered, min_y_2), max_y_2)
 
             # Очистка экрана и рисование шара
-            screen.fill(white_color)
+            screen.fill(white_color)  # Заполнение фона белым цветом
 
             # Рисуем серый овал
             pygame.draw.ellipse(screen, gray_color, oval_rect)
