@@ -9,27 +9,62 @@ from ball import Ball
 cascade_path = './filters/haarcascade_frontalface_default.xml'
 
 # Параметры экрана и интервала обновления
-screen_width = 800
-screen_height = 600
-update_interval = 0.1
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+UPDATE_INTERVAL = 0.1
 
 # Параметры шара и цвета экрана
-ball_radius = 30
-ball_radius_2 = 50
+BALL_RADIUS = 30
+BALL_RADIUS_2 = 50
 
-oval_width = 400  # Увеличен в 2 раза
-oval_height = 210  # Увеличен в 2 раза
+OVAL_WIDTH = 400  # Увеличен в 2 раза
+OVAL_HEIGHT = 210  # Увеличен в 2 раза
 
-yellow_ball_radius = oval_height // 2  # Радиус желтого шара
+YELLOW_BALL_RADIUS = OVAL_HEIGHT // 2  # Радиус желтого шара
 
-yellow_color = (255, 255, 0)  # Жёлтый цвет шара
-blue_color = (0, 0, 255)  # Синий цвет шара
-black_color = (0, 0, 0)  # Черный цвет шара
-white_color = (255, 255, 255)  # Белый цвет фона
-gray_color = (128, 128, 128)  # Серый цвет овала
+YELLOW_COLOR = (255, 255, 0)  # Жёлтый цвет шара
+BLUE_COLOR = (0, 0, 255)  # Синий цвет шара
+BLACK_COLOR = (0, 0, 0)  # Черный цвет шара
+WHITE_COLOR = (255, 255, 255)  # Белый цвет фона
+GRAY_COLOR = (128, 128, 128)  # Серый цвет овала
 
 # Ограничение FPS
 FPS = 60
+
+def update_ball_positions(x_yellow, y_yellow, x_screen, y_screen, last_update_time, x_blue, y_blue, x_black, y_black):
+    """Обновление позиции шаров в зависимости от положения лица."""
+
+    current_time = time.time()
+    if current_time - last_update_time >= UPDATE_INTERVAL:
+        last_update_time = current_time
+        x_centered = SCREEN_WIDTH - x_screen  # Инвертированная X-координата
+        y_centered = y_screen  # Центрированная Y-координата
+
+        # Смещение синего шара относительно желтого
+        x_shift_blue = x_centered - x_yellow
+        y_shift_blue = y_centered - y_yellow
+
+        # Ограничение для синего шара
+        max_x_2 = x_yellow + (YELLOW_BALL_RADIUS - BALL_RADIUS_2)
+        min_x_2 = x_yellow - (YELLOW_BALL_RADIUS - BALL_RADIUS_2)
+        max_y_2 = y_yellow + (YELLOW_BALL_RADIUS - BALL_RADIUS_2)
+        min_y_2 = y_yellow - (YELLOW_BALL_RADIUS - BALL_RADIUS_2)
+
+        # Обновление позиции для синего шара
+        x_blue = min(max(x_centered, min_x_2), max_x_2)
+        y_blue = min(max(y_centered, min_y_2), max_y_2)
+
+        # Черный шар будет смещаться в 5.5 раза меньше, чем синий
+        x_shift_black = x_shift_blue / 5.5
+        y_shift_black = y_shift_blue / 5.5
+
+        # Вычисляем позицию черного шара относительно центра синего шара
+        x_black = x_blue + x_shift_black
+        y_black = y_blue + y_shift_black
+
+        return x_blue, y_blue, x_black, y_black, last_update_time
+
+    return x_blue, y_blue, x_black, y_black, last_update_time
 
 
 def run():
@@ -43,21 +78,21 @@ def run():
 
     last_update_time = time.time()  # Время последнего обновления положения шара
     pygame.init()
-    screen = pygame.display.set_mode((screen_width, screen_height))  # Экран для отображения графики
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Экран для отображения графики
     pygame.display.set_caption("Head Tracking Ball")  # Заголовок окна приложения
 
     # Создание объекта Clock для управления FPS
     clock = pygame.time.Clock()
 
     ball = Ball()
-    with FaceRecognition(cascade_path, screen_width, screen_height) as face_recognition:
+    with FaceRecognition(cascade_path, SCREEN_WIDTH, SCREEN_HEIGHT) as face_recognition:
 
         # Определение границ овала
-        oval_center_x = screen_width // 2  # X-координата центра овала
-        oval_center_y = screen_height // 2  # Y-координата центра овала
+        oval_center_x = SCREEN_WIDTH // 2  # X-координата центра овала
+        oval_center_y = SCREEN_HEIGHT // 2  # Y-координата центра овала
 
         # Прямоугольник, задающий овал
-        oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
+        oval_rect = [(SCREEN_WIDTH - OVAL_WIDTH) // 2, (SCREEN_HEIGHT - OVAL_HEIGHT) // 2, OVAL_WIDTH, OVAL_HEIGHT]
 
         try:
 
@@ -68,9 +103,6 @@ def run():
             while True:
                 # Захват и обработка лиц
                 faces = face_recognition.detect_faces()  # Список обнаруженных лиц
-
-                # Проверка наличия лиц перед обработкой
-                # if str(type(faces)) == "<class 'numpy.ndarray'>":
 
                 # Проверка, если faces - это numpy.ndarray и в нем есть лица
                 if isinstance(faces, np.ndarray) and faces.size > 0:
@@ -83,48 +115,29 @@ def run():
                     # Обновление положения шара только при наличии обнаруженных лиц
                     if x_screen is not None and y_screen is not None:
 
-                        if current_time - last_update_time >= update_interval:
-                            last_update_time = current_time  # Обновление времени последнего перемещения
-
-                            # Ограничение движения шаров в пределах овала
-                            x_centered = screen_width - x_screen  # Инвертированная X-координата
-                            y_centered = y_screen  # Центрированная Y-координата
-
-                            # Смещение синего шара относительно желтого
-                            x_shift_blue = x_centered - x_yellow
-                            y_shift_blue = y_centered - y_yellow
-
-                            # Ограничение для синего шара (перемещается относительно желтого шара)
-                            max_x_2 = x_yellow + (yellow_ball_radius - ball_radius_2)
-                            min_x_2 = x_yellow - (yellow_ball_radius - ball_radius_2)
-                            max_y_2 = y_yellow + (yellow_ball_radius - ball_radius_2)
-                            min_y_2 = y_yellow - (yellow_ball_radius - ball_radius_2)
-
-                            # Ограничение позиции для синего шара
-                            x_blue = min(max(x_centered, min_x_2), max_x_2)
-                            y_blue = min(max(y_centered, min_y_2), max_y_2)
-
-                            # Черный шар будет смещаться в 5.5 раза меньше, чем синий шар
-                            x_shift_black = x_shift_blue / 5.5  # Смещение черного шара
-                            y_shift_black = y_shift_blue / 5.5  # Смещение черного шара
-
-                            # Вычисляем позицию черного шара относительно центра синего шара
-                            x_black = x_blue + x_shift_black  # Позиция черного шара по оси X
-                            y_black = y_blue + y_shift_black  # Позиция черного шара по оси Y
+                        x_blue, y_blue, x_black, y_black, last_update_time = update_ball_positions(x_yellow,
+                                                                                                   y_yellow,
+                                                                                                   x_screen,
+                                                                                                   y_screen,
+                                                                                                   last_update_time,
+                                                                                                   x_blue,
+                                                                                                   y_blue,
+                                                                                                   x_black,
+                                                                                                   y_black)
 
                     # Очистка экрана и рисование шара
-                    screen.fill(white_color)  # Заполнение фона белым цветом
+                    screen.fill(WHITE_COLOR)  # Заполнение фона белым цветом
 
                     # Рисуем серый овал
-                    ball.draw_ellipse(screen, gray_color, oval_rect)
+                    ball.draw_ellipse(screen, GRAY_COLOR, oval_rect)
 
-                    ball.draw_circle(screen=screen, radius=yellow_ball_radius, color=yellow_color, x=x_yellow, y=y_yellow)
+                    ball.draw_circle(screen=screen, radius=YELLOW_BALL_RADIUS, color=YELLOW_COLOR, x=x_yellow, y=y_yellow)
 
                     # Рисуем синий шар
-                    ball.draw_circle(screen=screen, radius=ball_radius_2, color=blue_color, x=x_blue, y=y_blue)
+                    ball.draw_circle(screen=screen, radius=BALL_RADIUS_2, color=BLUE_COLOR, x=x_blue, y=y_blue)
 
                     # Рисуем черный шар
-                    ball.draw_circle(screen=screen, radius=ball_radius, color=black_color, x=x_black, y=y_black)
+                    ball.draw_circle(screen=screen, radius=BALL_RADIUS, color=BLACK_COLOR, x=x_black, y=y_black)
 
                     pygame.display.update()
 
