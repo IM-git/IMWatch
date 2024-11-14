@@ -22,6 +22,12 @@ class FaceRecognition:
         if not self.camera.isOpened():
             raise Exception("Camera could not be opened.")
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.release()
+
     def detect_faces(self):
         """
             Захватывает кадр с камеры и выполняет распознавание лиц на этом кадре.

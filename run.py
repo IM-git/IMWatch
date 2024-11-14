@@ -1,5 +1,7 @@
 import time
 import pygame
+import numpy as np
+
 from face_recognition import FaceRecognition
 from ball import Ball
 
@@ -48,89 +50,99 @@ def run():
     clock = pygame.time.Clock()
 
     ball = Ball()
-    face_recognition = FaceRecognition(cascade_path, screen_width, screen_height)
+    with FaceRecognition(cascade_path, screen_width, screen_height) as face_recognition:
 
-    # Определение границ овала
-    oval_center_x = screen_width // 2  # X-координата центра овала
-    oval_center_y = screen_height // 2  # Y-координата центра овала
+        # Определение границ овала
+        oval_center_x = screen_width // 2  # X-координата центра овала
+        oval_center_y = screen_height // 2  # Y-координата центра овала
 
-    # Прямоугольник, задающий овал
-    oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
+        # Прямоугольник, задающий овал
+        oval_rect = [(screen_width - oval_width) // 2, (screen_height - oval_height) // 2, oval_width, oval_height]
 
-    try:
+        try:
 
-        x_yellow, y_yellow = oval_center_x, oval_center_y  # Начальная позиция желтого шара
-        x_blue, y_blue = oval_center_x, oval_center_y  # Начальная позиция синего шара
-        x_black, y_black = oval_center_x, oval_center_y  # Начальная позиция черного шара
+            x_yellow, y_yellow = oval_center_x, oval_center_y  # Начальная позиция желтого шара
+            x_blue, y_blue = oval_center_x, oval_center_y  # Начальная позиция синего шара
+            x_black, y_black = oval_center_x, oval_center_y  # Начальная позиция черного шара
 
-        while True:
-            # Захват и обработка лиц
-            faces = face_recognition.detect_faces()  # Список обнаруженных лиц
-            _screen_coordinates = face_recognition.process_faces(faces)  # Координаты центра первого обнаруженного лица
-            x_screen, y_screen = _screen_coordinates
+            while True:
+                # Захват и обработка лиц
+                faces = face_recognition.detect_faces()  # Список обнаруженных лиц
 
-            current_time = time.time()
+                # Проверка наличия лиц перед обработкой
+                # if str(type(faces)) == "<class 'numpy.ndarray'>":
 
-            # Обновление положения шара только при наличии обнаруженных лиц
-            if x_screen is not None and y_screen is not None:
+                # Проверка, если faces - это numpy.ndarray и в нем есть лица
+                if isinstance(faces, np.ndarray) and faces.size > 0:
 
-                if current_time - last_update_time >= update_interval:
-                    last_update_time = current_time  # Обновление времени последнего перемещения
+                    # Координаты центра первого обнаруженного лица
+                    x_screen, y_screen = face_recognition.process_faces(faces)
 
-                    # Ограничение движения шаров в пределах овала
-                    x_centered = screen_width - x_screen  # Инвертированная X-координата
-                    y_centered = y_screen  # Центрированная Y-координата
+                    current_time = time.time()
 
-                    # Смещение синего шара относительно желтого
-                    x_shift_blue = x_centered - x_yellow
-                    y_shift_blue = y_centered - y_yellow
+                    # Обновление положения шара только при наличии обнаруженных лиц
+                    if x_screen is not None and y_screen is not None:
 
-                    # Ограничение для синего шара (перемещается относительно желтого шара)
-                    max_x_2 = x_yellow + (yellow_ball_radius - ball_radius_2)
-                    min_x_2 = x_yellow - (yellow_ball_radius - ball_radius_2)
-                    max_y_2 = y_yellow + (yellow_ball_radius - ball_radius_2)
-                    min_y_2 = y_yellow - (yellow_ball_radius - ball_radius_2)
+                        if current_time - last_update_time >= update_interval:
+                            last_update_time = current_time  # Обновление времени последнего перемещения
 
-                    # Ограничение позиции для синего шара
-                    x_blue = min(max(x_centered, min_x_2), max_x_2)
-                    y_blue = min(max(y_centered, min_y_2), max_y_2)
+                            # Ограничение движения шаров в пределах овала
+                            x_centered = screen_width - x_screen  # Инвертированная X-координата
+                            y_centered = y_screen  # Центрированная Y-координата
 
-                    # Черный шар будет смещаться в 5.5 раза меньше, чем синий шар
-                    x_shift_black = x_shift_blue / 5.5  # Смещение черного шара
-                    y_shift_black = y_shift_blue / 5.5  # Смещение черного шара
+                            # Смещение синего шара относительно желтого
+                            x_shift_blue = x_centered - x_yellow
+                            y_shift_blue = y_centered - y_yellow
 
-                    # Вычисляем позицию черного шара относительно центра синего шара
-                    x_black = x_blue + x_shift_black  # Позиция черного шара по оси X
-                    y_black = y_blue + y_shift_black  # Позиция черного шара по оси Y
+                            # Ограничение для синего шара (перемещается относительно желтого шара)
+                            max_x_2 = x_yellow + (yellow_ball_radius - ball_radius_2)
+                            min_x_2 = x_yellow - (yellow_ball_radius - ball_radius_2)
+                            max_y_2 = y_yellow + (yellow_ball_radius - ball_radius_2)
+                            min_y_2 = y_yellow - (yellow_ball_radius - ball_radius_2)
 
-            # Очистка экрана и рисование шара
-            screen.fill(white_color)  # Заполнение фона белым цветом
+                            # Ограничение позиции для синего шара
+                            x_blue = min(max(x_centered, min_x_2), max_x_2)
+                            y_blue = min(max(y_centered, min_y_2), max_y_2)
 
-            # Рисуем серый овал
-            ball.draw_ellipse(screen, gray_color, oval_rect)
+                            # Черный шар будет смещаться в 5.5 раза меньше, чем синий шар
+                            x_shift_black = x_shift_blue / 5.5  # Смещение черного шара
+                            y_shift_black = y_shift_blue / 5.5  # Смещение черного шара
 
-            ball.draw_circle(screen=screen, radius=yellow_ball_radius, color=yellow_color, x=x_yellow, y=y_yellow)
+                            # Вычисляем позицию черного шара относительно центра синего шара
+                            x_black = x_blue + x_shift_black  # Позиция черного шара по оси X
+                            y_black = y_blue + y_shift_black  # Позиция черного шара по оси Y
 
-            # Рисуем синий шар
-            ball.draw_circle(screen=screen, radius=ball_radius_2, color=blue_color, x=x_blue, y=y_blue)
+                    # Очистка экрана и рисование шара
+                    screen.fill(white_color)  # Заполнение фона белым цветом
 
-            # Рисуем черный шар
-            ball.draw_circle(screen=screen, radius=ball_radius, color=black_color, x=x_black, y=y_black)
+                    # Рисуем серый овал
+                    ball.draw_ellipse(screen, gray_color, oval_rect)
 
-            pygame.display.update()
+                    ball.draw_circle(screen=screen, radius=yellow_ball_radius, color=yellow_color, x=x_yellow, y=y_yellow)
 
-            # Обработка событий Pygame
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return
+                    # Рисуем синий шар
+                    ball.draw_circle(screen=screen, radius=ball_radius_2, color=blue_color, x=x_blue, y=y_blue)
 
-            # Ограничение количества кадров в секунду
-            clock.tick(FPS)
+                    # Рисуем черный шар
+                    ball.draw_circle(screen=screen, radius=ball_radius, color=black_color, x=x_black, y=y_black)
 
-    finally:
-        # Обязательно освобождаем ресурсы камеры перед выходом
-        face_recognition.release()
+                    pygame.display.update()
+
+                    # Обработка событий Pygame
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            return
+
+                    # Ограничение количества кадров в секунду
+                    clock.tick(FPS)
+                # Ускорение: Переходите к следующему кадру, если лица не обнаружены
+                else:
+                    continue
+
+        finally:
+            # Обязательно освобождаем ресурсы камеры перед выходом
+            face_recognition.release()
 
 
 if __name__ == '__main__':
