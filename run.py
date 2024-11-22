@@ -4,40 +4,43 @@ import numpy as np
 
 from face_recognition import FaceRecognition
 from ball import Ball
+from src import Data
 
 # Путь к каскаду Хаара для распознавания лиц
 cascade_path = './filters/haarcascade_frontalface_default.xml'
 
 # Параметры экрана и интервала обновления
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-UPDATE_INTERVAL = 0.1
-
-# Параметры шара и цвета экрана
-BALL_RADIUS = 30
-BALL_RADIUS_2 = 50
-
-OVAL_WIDTH = 400  # Увеличен в 2 раза
-OVAL_HEIGHT = 210  # Увеличен в 2 раза
-
-YELLOW_BALL_RADIUS = OVAL_HEIGHT // 2  # Радиус желтого шара
-
-YELLOW_COLOR = (255, 255, 0)  # Жёлтый цвет шара
-BLUE_COLOR = (0, 0, 255)  # Синий цвет шара
-BLACK_COLOR = (0, 0, 0)  # Черный цвет шара
-WHITE_COLOR = (255, 255, 255)  # Белый цвет фона
-GRAY_COLOR = (128, 128, 128)  # Серый цвет овала
+# SCREEN_WIDTH = 800
+# SCREEN_HEIGHT = 600
+# UPDATE_INTERVAL = 0.1
+#
+# # Параметры шара и цвета экрана
+# BALL_RADIUS = 30
+# BALL_RADIUS_2 = 50
+#
+# OVAL_WIDTH = 400  # Увеличен в 2 раза
+# OVAL_HEIGHT = 210  # Увеличен в 2 раза
+#
+# YELLOW_BALL_RADIUS = OVAL_HEIGHT // 2  # Радиус желтого шара
+#
+# YELLOW_COLOR = (255, 255, 0)  # Жёлтый цвет шара
+# BLUE_COLOR = (0, 0, 255)  # Синий цвет шара
+# BLACK_COLOR = (0, 0, 0)  # Черный цвет шара
+# WHITE_COLOR = (255, 255, 255)  # Белый цвет фона
+# GRAY_COLOR = (128, 128, 128)  # Серый цвет овала
 
 # Ограничение FPS
 FPS = 60
+
+data = Data
 
 def update_ball_positions(x_yellow, y_yellow, x_screen, y_screen, last_update_time, x_blue, y_blue, x_black, y_black):
     """Обновление позиции шаров в зависимости от положения лица."""
 
     current_time = time.time()
-    if current_time - last_update_time >= UPDATE_INTERVAL:
+    if current_time - last_update_time >= Data.UPDATE_INTERVAL.value:
         last_update_time = current_time
-        x_centered = SCREEN_WIDTH - x_screen  # Инвертированная X-координата
+        x_centered = Data.SCREEN_WIDTH.value - x_screen  # Инвертированная X-координата
         y_centered = y_screen  # Центрированная Y-координата
 
         # Смещение синего шара относительно желтого
@@ -45,10 +48,10 @@ def update_ball_positions(x_yellow, y_yellow, x_screen, y_screen, last_update_ti
         y_shift_blue = y_centered - y_yellow
 
         # Ограничение для синего шара
-        max_x_2 = x_yellow + (YELLOW_BALL_RADIUS - BALL_RADIUS_2)
-        min_x_2 = x_yellow - (YELLOW_BALL_RADIUS - BALL_RADIUS_2)
-        max_y_2 = y_yellow + (YELLOW_BALL_RADIUS - BALL_RADIUS_2)
-        min_y_2 = y_yellow - (YELLOW_BALL_RADIUS - BALL_RADIUS_2)
+        max_x_2 = x_yellow + (Data.YELLOW_BALL_RADIUS.value - Data.BALL_RADIUS_2.value)
+        min_x_2 = x_yellow - (Data.YELLOW_BALL_RADIUS.value - Data.BALL_RADIUS_2.value)
+        max_y_2 = y_yellow + (Data.YELLOW_BALL_RADIUS.value - Data.BALL_RADIUS_2.value)
+        min_y_2 = y_yellow - (Data.YELLOW_BALL_RADIUS.value - Data.BALL_RADIUS_2.value)
 
         # Обновление позиции для синего шара
         x_blue = min(max(x_centered, min_x_2), max_x_2)
@@ -78,21 +81,23 @@ def run():
 
     last_update_time = time.time()  # Время последнего обновления положения шара
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Экран для отображения графики
+    screen = pygame.display.set_mode((Data.SCREEN_WIDTH.value, Data.SCREEN_HEIGHT.value))  # Экран для отображения графики
     pygame.display.set_caption("Head Tracking Ball")  # Заголовок окна приложения
 
     # Создание объекта Clock для управления FPS
     clock = pygame.time.Clock()
 
     ball = Ball()
-    with FaceRecognition(cascade_path, SCREEN_WIDTH, SCREEN_HEIGHT) as face_recognition:
+    with FaceRecognition(cascade_path, Data.SCREEN_WIDTH.value, Data.SCREEN_HEIGHT.value) as face_recognition:
 
         # Определение границ овала
-        oval_center_x = SCREEN_WIDTH // 2  # X-координата центра овала
-        oval_center_y = SCREEN_HEIGHT // 2  # Y-координата центра овала
+        oval_center_x = Data.SCREEN_WIDTH.value // 2  # X-координата центра овала
+        oval_center_y = Data.SCREEN_HEIGHT.value // 2  # Y-координата центра овала
 
         # Прямоугольник, задающий овал
-        oval_rect = [(SCREEN_WIDTH - OVAL_WIDTH) // 2, (SCREEN_HEIGHT - OVAL_HEIGHT) // 2, OVAL_WIDTH, OVAL_HEIGHT]
+        oval_rect = [(Data.SCREEN_WIDTH.value - Data.OVAL_WIDTH.value) // 2,
+                     (Data.SCREEN_HEIGHT.value - Data.OVAL_HEIGHT.value) // 2,
+                     Data.OVAL_WIDTH.value, Data.OVAL_HEIGHT.value]
 
         try:
 
@@ -126,18 +131,21 @@ def run():
                                                                                                    y_black)
 
                     # Очистка экрана и рисование шара
-                    screen.fill(WHITE_COLOR)  # Заполнение фона белым цветом
+                    screen.fill(Data.WHITE_COLOR.value)  # Заполнение фона белым цветом
 
                     # Рисуем серый овал
-                    ball.draw_ellipse(screen, GRAY_COLOR, oval_rect)
+                    ball.draw_ellipse(screen, Data.GRAY_COLOR.value, oval_rect)
 
-                    ball.draw_circle(screen=screen, radius=YELLOW_BALL_RADIUS, color=YELLOW_COLOR, x=x_yellow, y=y_yellow)
+                    ball.draw_circle(screen=screen, radius=Data.YELLOW_BALL_RADIUS.value,
+                                     color=Data.YELLOW_COLOR.value, x=x_yellow, y=y_yellow)
 
                     # Рисуем синий шар
-                    ball.draw_circle(screen=screen, radius=BALL_RADIUS_2, color=BLUE_COLOR, x=x_blue, y=y_blue)
+                    ball.draw_circle(screen=screen, radius=Data.BALL_RADIUS_2.value,
+                                     color=Data.BLUE_COLOR.value, x=x_blue, y=y_blue)
 
                     # Рисуем черный шар
-                    ball.draw_circle(screen=screen, radius=BALL_RADIUS, color=BLACK_COLOR, x=x_black, y=y_black)
+                    ball.draw_circle(screen=screen, radius=Data.BALL_RADIUS.value, color=Data.BLACK_COLOR.value,
+                                     x=x_black, y=y_black)
 
                     pygame.display.update()
 
